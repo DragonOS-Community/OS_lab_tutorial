@@ -104,7 +104,7 @@ int main() {
 
 ## 实验样例
 
-<img src="../../.vuepress/public/FIFO_result.png" alt="image-20230713200134638" style="zoom:80%;" />
+<img src="/OS_lab_tutorial/docs/.vuepress/public/FIFO_result.png" alt="image-20230713200134638" style="zoom:80%;" />
 
 
 
