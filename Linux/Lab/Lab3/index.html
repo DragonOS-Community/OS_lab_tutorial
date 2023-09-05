@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>实验三 - 进程调度 | 操作系统实验</title>
+    <meta name="generator" content="VuePress 1.9.10">
+    
+    <meta name="description" content="Welcome!">
+    
+    <link rel="preload" href="/OS_lab_tutorial/assets/css/0.styles.dbcc0abd.css" as="style"><link rel="preload" href="/OS_lab_tutorial/assets/js/app.ff4cf5bb.js" as="script"><link rel="preload" href="/OS_lab_tutorial/assets/js/2.3dc1b8de.js" as="script"><link rel="preload" href="/OS_lab_tutorial/assets/js/1.7f771cfb.js" as="script"><link rel="preload" href="/OS_lab_tutorial/assets/js/56.f45c6ced.js" as="script"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/10.23a1f579.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/11.c389195a.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/12.1d996921.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/13.4d4410c4.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/14.37ef2a72.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/15.5542c093.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/16.d48fd1ce.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/17.bd8d538c.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/18.6d3b94c1.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/19.eb35cfee.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/20.c11ec329.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/21.db1b5d88.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/22.bc10dbcb.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/23.da61e3a5.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/24.df968878.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/25.f7d9808c.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/26.4661af7a.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/27.2d2b53d7.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/28.e53b572e.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/29.56c8dd41.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/3.5322f14a.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/30.d78ca245.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/31.8fd0a2c1.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/32.4aa5ad6b.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/33.92e2bbc5.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/34.354d9170.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/35.1756626f.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/36.47c58c37.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/37.437db42a.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/38.2485c0ae.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/39.b4d5f235.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/4.84e1e480.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/40.1cf48109.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/41.88a9cd89.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/42.517be223.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/43.dc7c858f.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/44.ea49cfe0.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/45.020b5946.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/46.9e08647b.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/47.00b54227.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/48.2f547fd0.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/49.808c5013.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/5.f0541060.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/50.9a07e6b8.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/51.9590672f.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/52.72405151.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/53.823fb048.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/54.7a615d32.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/55.504e10c4.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/57.ca2f1aa0.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/58.4802c1c4.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/59.ee33963c.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/6.dfb06aa0.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/60.3bb72ca3.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/61.f4291450.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/62.33242384.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/63.0baf087a.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/64.5ef98696.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/65.622dfe34.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/66.69329830.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/7.7551a9fb.js"><link rel="prefetch" href="/OS_lab_tutorial/assets/js/vendors~docsearch.5e19b665.js">
+    <link rel="stylesheet" href="/OS_lab_tutorial/assets/css/0.styles.dbcc0abd.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/OS_lab_tutorial/" class="home-link router-link-active"><!----> <span class="site-name">操作系统实验</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/OS_lab_tutorial/" class="nav-link">
+  首页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Linux" class="dropdown-title"><span class="title">Linux</span> <span class="arrow down"></span></button> <button type="button" aria-label="Linux" class="mobile-dropdown-title"><span class="title">Linux</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          实验教程
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab4/" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li><li class="dropdown-item"><h4>
+          课程练习
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab3.html" class="nav-link">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab4.html" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li><li class="dropdown-item"><h4>
+          附录
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab3.html" class="nav-link">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab4.html" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li></ul></div></div><div class="nav-item"><a href="/OS_lab_tutorial/DragonOS.html" class="nav-link">
+  DragonOS
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/OS_lab_tutorial/" class="nav-link">
+  首页
+</a></div><div class="nav-item"><div class="dropdown-wrapper"><button type="button" aria-label="Linux" class="dropdown-title"><span class="title">Linux</span> <span class="arrow down"></span></button> <button type="button" aria-label="Linux" class="mobile-dropdown-title"><span class="title">Linux</span> <span class="arrow right"></span></button> <ul class="nav-dropdown" style="display:none;"><li class="dropdown-item"><h4>
+          实验教程
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab4/" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Lab/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li><li class="dropdown-item"><h4>
+          课程练习
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab3.html" class="nav-link">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab4.html" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Assignment/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li><li class="dropdown-item"><h4>
+          附录
+        </h4> <ul class="dropdown-subitem-wrapper"><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab1.html" class="nav-link">
+  实验1-熟悉类Linux系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab2.html" class="nav-link">
+  实验2-进程创建与进程间通信
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab3.html" class="nav-link">
+  实验3-进程调度算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab4.html" class="nav-link">
+  实验4-存储管理算法
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab5.html" class="nav-link">
+  实验5-文件管理系统
+</a></li><li class="dropdown-subitem"><a href="/OS_lab_tutorial/Linux/Appendix/Lab6.html" class="nav-link">
+  实验6-网络编程(暂定)
+</a></li></ul></li></ul></div></div><div class="nav-item"><a href="/OS_lab_tutorial/DragonOS.html" class="nav-link">
+  DragonOS
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>进程调度</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/OS_lab_tutorial/Linux/Lab/Lab3/" aria-current="page" class="active sidebar-link">任务说明</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/#前言" class="sidebar-link">前言</a></li><li class="sidebar-sub-header"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/#一、实验目的" class="sidebar-link">一、实验目的</a></li><li class="sidebar-sub-header"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/#二、实验步骤" class="sidebar-link">二、实验步骤</a></li><li class="sidebar-sub-header"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/#课外资料" class="sidebar-link">课外资料</a></li></ul></li><li><a href="/OS_lab_tutorial/Linux/Lab/Lab3/RR.html" class="sidebar-link">RR调度算法</a></li><li><a href="/OS_lab_tutorial/Linux/Lab/Lab3/SJF.html" class="sidebar-link">SJF调度算法</a></li><li><a href="/OS_lab_tutorial/Linux/Lab/Lab3/CFS.html" class="sidebar-link">CFS调度算法</a></li><li><a href="/OS_lab_tutorial/Linux/Lab/Lab3/MLFQ.html" class="sidebar-link">MLFQ调度算法</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="实验三-进程调度"><a href="#实验三-进程调度" class="header-anchor">#</a> 实验三 - 进程调度</h1> <h2 id="前言"><a href="#前言" class="header-anchor">#</a> 前言</h2> <p>（1）为什么要引入进程调度？</p> <p>（2）主要针对单核处理机的调度算法做研究</p> <p>（3）历史发展脉络</p> <p>（4）进程调度的性能指标是什么</p> <p>（5）进程切换</p> <p>（6）进程调度的实现</p> <h2 id="一、实验目的"><a href="#一、实验目的" class="header-anchor">#</a> 一、实验目的</h2> <p>​	操作系统的内核中实现的调度器比较复杂，其本质组成就是3大模块：就绪队列、调度器、分配器。</p> <p>​	在本次实验中，三者之中的就绪队列将会作为参数提供给你，你需要实现的是调度器，然后由系统本身实现的分配器调用你事先的调度器，以检验算法的正确性。</p> <p>​	实现调度器的最困难的地方在于实现调度算法（抛开提高性能、降低耦合性等事实不谈），请你结合实验教程完成调度算法的实现，并按照规范实现程序接口，以保证整个系统能够运行。</p> <h2 id="二、实验步骤"><a href="#二、实验步骤" class="header-anchor">#</a> 二、实验步骤</h2> <h3 id="_1-进程控制块-pcb-结构"><a href="#_1-进程控制块-pcb-结构" class="header-anchor">#</a> 1. 进程控制块(PCB)结构</h3> <p>​	进程控制块（PCB）是操作系统中用于管理和描述进程的数据结构。它存储了一个进程的相关信息，包括进程状态、程序计数器、寄存器值、内存分配信息、打开的文件列表等。</p> <p>​	在本次实验中，我们已经帮你设计好了PCB，你需要理解PCB中的每个变量的作用以及意义，在此基础上实现调度算法，并通过实验数据测试。</p> <p>​	下面是我们规定的PCB结构体：</p> <div class="language-cpp extra-class"><pre class="language-cpp"><code><span class="token keyword">struct</span> <span class="token class-name">PCB</span> <span class="token punctuation">{</span>
+    <span class="token keyword">int</span> pid<span class="token punctuation">;</span>                 <span class="token comment">// 进程ID</span>
+    string name<span class="token punctuation">;</span>             <span class="token comment">// 进程名称</span>
+    string state<span class="token punctuation">;</span>            <span class="token comment">// 进程状态 (一般来说 就绪队列里面的进程都是Ready状态)</span>
+    <span class="token keyword">int</span> priority<span class="token punctuation">;</span>            <span class="token comment">// 进程优先级</span>
+    <span class="token keyword">int</span> burst_time<span class="token punctuation">;</span>          <span class="token comment">// 进程的执行时间</span>
+    <span class="token keyword">int</span> remain_time<span class="token punctuation">;</span>         <span class="token comment">// 剩余执行时间</span>
+    <span class="token keyword">int</span> arrive_time<span class="token punctuation">;</span>         <span class="token comment">// 进程到达时间</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+</code></pre></div><p>​	该结构体具有上述变量。对于不同的编程语言，变量名称都与上面的代码一致。</p> <h3 id="_2-调度策略"><a href="#_2-调度策略" class="header-anchor">#</a> 2. 调度策略</h3> <p>​	在这一步，你需要根据不同的调度策略设计响应的调度算法，调度策略有以下几种：</p> <ul><li><p>FCFS（First Come First Serve）</p></li> <li><p>RR（Round-Robin，轮转调度）</p></li> <li><p>SJF（Shortest Job First，最短作业优先）</p></li> <li><p>MLFQ（多级反馈队列调度）</p></li> <li><p>CFS（Completely Fair Scheduler，完全公平调度器）</p></li></ul> <p>​	请跳转到响应的实验教程中继续完成实验。</p> <h2 id="课外资料"><a href="#课外资料" class="header-anchor">#</a> 课外资料</h2></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><!----> <span class="next"><a href="/OS_lab_tutorial/Linux/Lab/Lab3/RR.html">
+        RR调度算法
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/OS_lab_tutorial/assets/js/app.ff4cf5bb.js" defer></script><script src="/OS_lab_tutorial/assets/js/2.3dc1b8de.js" defer></script><script src="/OS_lab_tutorial/assets/js/1.7f771cfb.js" defer></script><script src="/OS_lab_tutorial/assets/js/56.f45c6ced.js" defer></script>
+  </body>
+</html>
