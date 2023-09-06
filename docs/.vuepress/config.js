@@ -6,6 +6,7 @@ module.exports = {
       nav: [
         { text: '首页', link: '/' },
         {
+          // linux教案结构
           text: 'Linux',
           items: [
             { 
@@ -43,8 +44,29 @@ module.exports = {
             }
           ]
         },
+        // DragonOS教案结构
         {
-          text: 'DragonOS',link:'/DragonOS'
+          text: 'DragonOS',
+          items: [
+            { 
+                text: '实验教程', 
+                items:[
+                  { text: '实验-文件系统', link: '/DragonOS/Lab/Lab1' }
+                ]
+            },
+            { 
+                text: '课程练习', 
+                items:[
+                  { text: '实验-文件系统', link: '/DragonOS/Assignment/Lab1' }
+                ]
+            },
+            { 
+                text: '附录', 
+                items:[
+                  { text: '实验-文件系统', link: '/DragonOS/Appendix/Lab1' }
+                ]
+            }
+          ]
         }
       ],
       sidebar: {
