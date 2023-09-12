@@ -6,7 +6,7 @@ sidebar: auto
 
 ## 本章导读
 
-本章意在介绍文件系统相关知识，包括虚拟文件系统、ramfs以及如何在用户程序对自己写的文件系统进行测试
+本章意在介绍文件系统相关知识，包括虚拟文件系统、ramfs。
 
 ## DragonOS文件系统的架构设计
 
@@ -24,7 +24,7 @@ sidebar: auto
 
 如图所示：
 
-![图片1](/OS_lab_tutorial/docs/.vuepress/public/DragonOS/DragonOS.png '文件系统架构设计')
+![图片1](../../.vuepress/public/DragonOS/DragonOS.png '文件系统架构设计')
 
 其中我们可以看到，中间部分作为接口对多个并行的物理文件系统实例（每一个都叫做文件系统的实现）提供支持。这就是虚拟文件系统。
 
@@ -50,7 +50,7 @@ VFS是DragonOS文件系统的核心，它提供了一套统一的文件系统接
 
 ## VFS的架构设计
 
-![图片2](/OS_lab_tutorial/docs/.vuepress/public/DragonOS/vfs_archi_design.png 'vfs架构设计')
+![图片2](../../.vuepress/public/DragonOS/vfs_archi_design.png 'vfs架构设计')
 
 ### File
 
@@ -206,14 +206,14 @@ pub struct MountFSInode {
 
 ramfs是vfs下具体实现的一种基于RAM做存储的文件系统，主要实现了以下功能：
 
-- **read_at**:读
-- **write_at**:写
-- **poll**:获取文件状态
-- **resize**:重置用于存放数据的data的大小
-- **create_with_data**:创建自带数据的文件
-- **link**:链接
-- **unlink**:解链接
-- **rmdir:**删除文件夹
-- **move_**:移动文件
-- **find**:查找文件
-- **list**:显示当前文件夹下的内容
+- `read_at`: 读
+- `write_at`: 写
+- `poll`: 获取文件状态
+- `resize`: 重置用于存放数据的data的大小
+- `create_with_data`: 创建自带数据的文件
+- `link**`: 链接
+- `unlink`: 解链接
+- `rmdir`: 删除文件夹
+- `move`: 移动文件
+- `find`: 查找文件
+- `list`: 显示当前文件夹下的内容
