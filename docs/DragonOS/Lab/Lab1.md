@@ -24,7 +24,7 @@ sidebar: auto
 
 如图所示：
 
-![图片1](../.vuepress/public/../../../.vuepress/public/DragonOS.png '文件系统架构设计')
+![图片1](/OS_lab_tutorial/docs/.vuepress/public/DragonOS/DragonOS.png '文件系统架构设计')
 
 其中我们可以看到，中间部分作为接口对多个并行的物理文件系统实例（每一个都叫做文件系统的实现）提供支持。这就是虚拟文件系统。
 
@@ -50,7 +50,7 @@ VFS是DragonOS文件系统的核心，它提供了一套统一的文件系统接
 
 ## VFS的架构设计
 
-![图片2](../.vuepress/public/../../../.vuepress/public/vfs_archi_design.png 'vfs架构设计')
+![图片2](/OS_lab_tutorial/docs/.vuepress/public/DragonOS/vfs_archi_design.png 'vfs架构设计')
 
 ### File
 
@@ -202,91 +202,18 @@ pub struct MountFSInode {
 
 对于大部分的操作，MountFS都是直接转发给具体的文件系统，而不做任何处理。同时，为了支持跨文件系统的操作，比如在目录树上查找，每次`lookup`操作或者是`find`操作，都会通过`MountFSInode`的对应方法，判断当前inode是否为挂载点，并对挂载点进行特殊处理。如果发现操作跨越了具体文件系统的边界，MountFS就会将操作转发给下一个文件系统，并执行Inode替换。这个功能的实现，也是通过在普通的Inode结构体外面，套一层MountFSInode结构体来实现的。
 
-## 实验内容
+## RamFS
 
-ramfs的基本功能在/kernel/src/filesystem/ramfs/mod.rs中，实现过程中请参考文件../vfs/mod.rs以及已实现函数的相关代码和注释。在实现基本的文件操作之前，需要先实现创建文件结构的辅助函数：create_with_data。其用于创建文件时，在父目录下创建带初始化数据的inode。
+ramfs是vfs下具体实现的一种基于RAM做存储的文件系统，主要实现了以下功能：
 
->练习1：实现位于/kernel/src/filesystem/ramfs/mod.rs中的 create_with_data。
-
-```rust
-    // 该函数用于在当前目录下创建一个新的inode，并传入一个简单的data字段，方便进行初始化。
-    // 需要判断当前inode是否是文件且是否重名，接着创建inode进行初始化。
-    fn create_with_data(
-        &self,
-        name: &str,
-        file_type: FileType,
-        mode: u32,
-        data: usize,
-    ) -> Result<Arc<dyn IndexNode>, SystemError> {
-        // 获取当前inode
-        let mut inode = self.0.lock();
-        
-        // LAB TODO BEGIN
-
-        // LAB TODO END
-
-        // 初始化inode的自引用的weak指针
-        result.0.lock().self_ref = Arc::downgrade(&result);
-
-        // 将子inode插入父inode的B树中
-        inode.children.insert(String::from(name), result.clone());
-
-        return Ok(result);
-    }
-```
-
-文件读写是文件系统的基本功能，ramfs的读写操作会将文件数据块中内容读入内存缓冲区，或将缓冲区内容写入对应文件数据块。read_at和 write_at两个函数分别用于以一定偏移量读取和写入一段长度的数据，并且返回实际的读写字节长度 （读取不能超过文件大小）。
-
->练习2：实现位于/kernel/src/filesystem/ramfs/mod.rs中的 read_at和 write_at。
-
-```rust
-    // 该函数用于实现对文件以一定偏移量读取一段长度的数据，并且返回实际的读字节长度。
-    // 首先检查当前inode是否为一个文件，然后计算读文件的偏移量，最后拷贝数据（copy_from_slice）。
-    fn read_at(
-        &self,
-        offset: usize,
-        len: usize,
-        buf: &mut [u8],
-        _data: &mut FilePrivateData,
-    ) -> Result<usize, SystemError> {
-        if buf.len() < len {
-            return Err(SystemError::EINVAL);
-        }
-        // 加锁
-        let inode: SpinLockGuard<RamFSInode> = self.0.lock();
-
-        // LAB TODO BEGIN
-
-        // LAB TODO END
-
-        return Ok(src.len());
-    }
-
-    // 该函数用于实现对文件以一定偏移量写一段长度的数据，并且返回实际的写字节长度。
-    // 首先检查当前inode是否为一个文件，如果文件大小比原来的大，那就resize这个数组，最后将数据写入（copy_from_slice）。
-    fn write_at(
-        &self,
-        offset: usize,
-        len: usize,
-        buf: &[u8],
-        _data: &mut FilePrivateData,
-    ) -> Result<usize, SystemError> {
-        if buf.len() < len {
-            return Err(SystemError::EINVAL);
-        }
-
-        // 加锁
-        let mut inode: SpinLockGuard<RamFSInode> = self.0.lock();
-
-        // 检查当前inode是否为一个文件夹，如果是的话，就返回错误
-        if inode.metadata.file_type == FileType::Dir {
-            return Err(SystemError::EISDIR);
-        }
-
-        // LAB TODO BEGIN
-
-        // LAB TODO END
-
-        return Ok(len);
-    }
-```
+- **read_at**:读
+- **write_at**:写
+- **poll**:获取文件状态
+- **resize**:重置用于存放数据的data的大小
+- **create_with_data**:创建自带数据的文件
+- **link**:链接
+- **unlink**:解链接
+- **rmdir:**删除文件夹
+- **move_**:移动文件
+- **find**:查找文件
+- **list**:显示当前文件夹下的内容
