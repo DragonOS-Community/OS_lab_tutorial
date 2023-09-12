@@ -117,7 +117,7 @@ int main() {
 
 ## 实验结果
 
-<img src="/OS_lab_tutorial/docs/.vuepress/public/Linux/RR-result.png" alt="image-20230710171839016" style="zoom:80%;" />
+<img src="../../.vuepress/public/Linux/RR-result.png" alt="image-20230710171839016" style="zoom:80%;" />
 
 
 
