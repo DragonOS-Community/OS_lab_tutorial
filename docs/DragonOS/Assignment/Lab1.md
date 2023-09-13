@@ -107,17 +107,54 @@ ramfs的基本功能在/kernel/src/filesystem/ramfs/mod.rs中，实现过程中�
 
 测试代码中打开文件调用的`open`函数，最终会进行系统调用，在 **kernel/src/syscall** 中，标志是`SYS_OPEN`
 
-![图片1](../../.vuepress/public/DragonOS/SYS_OPEN.png)
+```rust
+SYS_OPEN => {
+    let path: &CStr = unsafe { CStr::from_ptr(args[0] as *const c_char) };
+    let path: Result<&str, core::str::Utf8Error> = path.to_str();
+    let res = if path.is_err() {
+        Err(SystemError::EINVAL)
+    } else {
+        let path: &str = path.unwrap();
+        let flags = args[1];
+        let open_flags: FileMode = FileMode::from_bits_truncate(flags as u32);
+        Self::open(path, open_flags)
+    };
+    res
+}
+```
 
 检查文件路径正确后会调用同级目录下的 **syscall.rs** 中的 open 函数
 
 测试代码中的关闭文件调用`close`函数也和 open 类似，标志为`SYS_CLOSE`，然后调用 **syscall.rs** 中的 close 函数
 
-![图片2](../../.vuepress/public/DragonOS/SYS_CLOSE.png)
+```rust
+SYS_CLOSE => {
+    let fd = args[0];
+    Self::close(fd)
+}
+```
 
 再看 **kernel/vfs/mod.rs** 的`IndexNode`接口中
 
-![图片3](../../.vuepress/public/DragonOS/IndexNode_open_and_close.png)
+```rust
+pub trait IndexNode: Any + Sync + Send + Debug {
+   /// @brief 打开文件
+   /// @return 成功：Ok()
+   ///         失败：Err(错误码)
+   fn open(&self, _data: &mut FilePrivateData, _mode: &FileMode) -> Result<(), SystemError> {
+       // 若文件系统没有实现此方法，则返回“不支持”
+       return Err(SystemError::EOPNOTSUPP_OR_ENOTSUP);
+   }
+
+   /// @brief 关闭文件
+   /// @return 成功：Ok()
+   ///         失败：Err(错误码)
+    fn close(&self, _data: &mut FilePrivateData) -> Result<(), SystemError> {
+        // 若文件系统没有实现此方法，则返回“不支持”
+        return Err(SystemError::EOPNOTSUPP_OR_ENOTSUP);
+    }
+}
+```
 
 如果文件系统没有具体实现 open 和 close 函数，就返回不支持，所以这就是出错的原因
 
@@ -141,11 +178,26 @@ fn close(&self, _data: &mut FilePrivateData) -> Result<(), SystemError> {
 
  fopen 的系统调用也是 SYS_OPEN ，但是和 open 的区别在于：
 
-![图片4](../../.vuepress/public/DragonOS/SYS_OPEN_truncate.png)
+```rust
+// 如果O_TRUNC，并且，打开模式包含O_RDWR或O_WRONLY，清空文件
+if mode.contains(FileMode::O_TRUNC)
+    && (mode.contains(FileMode::O_RDWR) || mode.contains(FileMode::O_WRONLY))
+    && file_type == FileType::File
+{
+    inode.truncate(0)?;
+}
+```
 
  fopen 在满足条件的情况下会调用`truncate`函数，这个函数和 open 、close 一样，也是定义在 **vfs/mod.rs** 中的 IndexNode 接口中，但是没有具体实现，需要文件系统自己实现，如下：
 
-![图片5](../../.vuepress/public/DragonOS/truncate.png)
+```rust
+/// @brief 截断当前inode到指定的长度。如果当前文件长度小于len,则不操作。
+///
+/// @param len 要被截断到的目标长度
+fn truncate(&self, _len: usize) -> Result<(), SystemError> {
+    return Err(SystemError::EOPNOTSUPP_OR_ENOTSUP);
+}
+```
 
 **解决方式：**
 
@@ -182,11 +234,65 @@ fn truncate(&self, _len: usize) -> Result<(), SystemError> {
 
 #### test_fstat/Makefile
 
-![图片6](../../.vuepress/public/DragonOS/test_fstat_Makefile.png)
+```Makefile
+CC=$(DragonOS_GCC)/x86_64-elf-gcc
+LD=ld
+OBJCOPY=objcopy
+# 修改这里，把它改为你的relibc的sysroot路径
+RELIBC_OPT=$(DADK_BUILD_CACHE_DIR_RELIBC_0_1_0)
+CFLAGS=-I $(RELIBC_OPT)/include -D__dragonos__
+
+tmp_output_dir=$(ROOT_PATH)/bin/tmp/user
+output_dir=$(DADK_BUILD_CACHE_DIR_TEST_FSTAT_0_1_0)
+
+LIBC_OBJS:=$(shell find $(RELIBC_OPT)/lib -name "*.o" | sort )
+LIBC_OBJS+=$(RELIBC_OPT)/lib/libc.a
+
+all: main.o
+	mkdir -p $(tmp_output_dir)
+	
+	$(LD) -b elf64-x86-64 -z muldefs -o $(tmp_output_dir)/test_fstat  $(shell find . -name "*.o") $(LIBC_OBJS) -T link.lds
+
+	$(OBJCOPY) -I elf64-x86-64 -R ".eh_frame" -R ".comment" -O elf64-x86-64 $(tmp_output_dir)/test_fstat $(output_dir)/test_fstat.elf
+	
+	mv $(output_dir)/test_fstat.elf $(output_dir)/test_fstat
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c  -o main.o
+
+clean:
+	rm -f *.o
+```
 
 #### my_test/Makefile
 
-![图片7](../../.vuepress/public/DragonOS/my_test_Makefile.png)
+```Makefile
+CC=$(DragonOS_GCC)/x86_64-elf-gcc
+LD=ld
+OBJCOPY=objcopy
+# 修改这里，把它改为你的relibc的sysroot路径
+RELIBC_OPT=$(DADK_BUILD_CACHE_DIR_RELIBC_0_1_0)
+CFLAGS=-I $(RELIBC_OPT)/include -D__dragonos__
+
+tmp_output_dir=$(ROOT_PATH)/bin/tmp/user
+output_dir=$(DADK_BUILD_CACHE_DIR_MY_TEST_0_1_0)
+
+LIBC_OBJS:=$(shell find $(RELIBC_OPT)/lib -name "*.o" | sort )
+LIBC_OBJS+=$(RELIBC_OPT)/lib/libc.a
+
+all: main.o
+	mkdir -p $(tmp_output_dir)
+	
+	$(LD) -b elf64-x86-64 -z muldefs -o $(tmp_output_dir)/my_test  $(shell find . -name "*.o") $(LIBC_OBJS) -T link.lds
+
+	$(OBJCOPY) -I elf64-x86-64 -R ".eh_frame" -R ".comment" -O elf64-x86-64 $(tmp_output_dir)/my_test $(output_dir)/my_test.elf
+	
+	mv $(output_dir)/my_test.elf $(output_dir)/my_test
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c  -o main.o
+
+clean:
+	rm -f *.o
+```
 
 将代码里的 **test_fstat** 改为 **my_test**（**PS:** 注意区分大小写）
 
@@ -202,11 +308,37 @@ fn truncate(&self, _len: usize) -> Result<(), SystemError> {
 
 #### **test_fstat-0.1.0.dadk**
 
-![图片8](../../.vuepress/public/DragonOS/test_fstat_dadk.png)
+```dadk
+{
+  "name": "test_fstat",
+  "version": "0.1.0",
+  "description": "一个用来测试fstat能够正常运行的app",
+  "task_type": {
+    "BuildFromSource": {
+      "Local": {
+        "path": "apps/test_fstat"
+      }
+    }
+  },
+}
+```
 
 #### **my_test-0.1.0.dadk**
 
-![图片9](../../.vuepress/public/DragonOS/my_test_dadk.png)
+```dadk
+{
+  "name": "my_test",
+  "version": "0.1.0",
+  "description": "一个用来测试ramfs能够正常运行的app",
+  "task_type": {
+    "BuildFromSource": {
+      "Local": {
+        "path": "apps/my_test"
+      }
+    }
+  },
+}
+```
 
 将代码里的 **test_fstat** 都改成 **my_test**
 
@@ -220,7 +352,22 @@ fn truncate(&self, _len: usize) -> Result<(), SystemError> {
 
 导入你自己实现的文件系统，比如我这里是模仿ramfs写了一个my_ramfs，就按如下添加：
 
-![图片10](../../.vuepress/public/DragonOS/crate_my_ramfs.png)
+```rust
+use crate::{
+    driver::disk::ahci::{self},
+    filesystem::{
+        devfs::DevFS,
+        fat::fs::FATFileSystem,
+        procfs::ProcFS,
+        my_ramfs::RamFS,
+        sysfs::SysFS,
+        vfs::{mount::MountFS, FileSystem, FileType},
+    },
+    include::bindings::bindings::PAGE_4K_SIZE,
+    kerror, kinfo,
+    syscall::SystemError,
+};
+```
 
 ### 创建文件夹、实例并挂载
 
@@ -228,11 +375,50 @@ fn truncate(&self, _len: usize) -> Result<(), SystemError> {
 
 模仿其它文件系统创建当前准备测试的文件系统的文件夹，如下：
 
-![图片11](../../.vuepress/public/DragonOS/vfs_init_mkdir.png)
+```rust
+// 创建文件夹
+root_inode
+    .create("proc", FileType::Dir, 0o777)
+    .expect("Failed to create /proc");
+root_inode
+    .create("dev", FileType::Dir, 0o777)
+    .expect("Failed to create /dev");
+root_inode
+    .create("sys", FileType::Dir, 0o777)
+    .expect("Failed to create /sys");
+
+// 添加至这里
+
+root_inode
+    .create("ram", FileType::Dir, 0o777)
+    .expect("Failed to create /ram");
+```
 
 紧接着在下面创建 ramfs 实例，并挂载，照样是模仿其它文件系统挂载，如下：
 
-![图片12](../../.vuepress/public/DragonOS/vfs_init_mount.png)
+```rust
+// 创建 sysfs 实例
+let sysfs: Arc<SysFS> = SysFS::new();
+// sysfs 挂载
+let _t = root_inode
+    .find("sys")
+    .expect("Cannot find /sys")
+    .mount(sysfs)
+    .expect("Failed to mount sysfs");
+kinfo!("SysFS mounted.");
+
+// 添加至这里
+
+// // 创建ramfs实例
+let ramfs: Arc<RamFS> = RamFS::new();
+// ramfs挂载
+let _t = root_inode
+    .find("ram")
+    .expect("Cannot find /ram")
+    .mount(ramfs)
+    .expect("Failed to mount ramfs.");
+kinfo!("RamFS mounted.");
+```
 
 ### 迁移伪文件系统的inode
 
@@ -242,11 +428,33 @@ fn truncate(&self, _len: usize) -> Result<(), SystemError> {
 
 模仿其它文件系统获取ramfs的inode，如下：
 
-![图片13](../../.vuepress/public/DragonOS/binding.png)
+```rust
+// ==== 在这里获取要被迁移的文件系统的inode ===
+let binding = ROOT_INODE().find("proc").expect("ProcFS not mounted!").fs();
+let proc: &MountFS = binding.as_any_ref().downcast_ref::<MountFS>().unwrap();
+let binding = ROOT_INODE().find("dev").expect("DevFS not mounted!").fs();
+let dev: &MountFS = binding.as_any_ref().downcast_ref::<MountFS>().unwrap();
+let binding = ROOT_INODE().find("sys").expect("SysFs not mounted!").fs();
+let sys: &MountFS = binding.as_any_ref().downcast_ref::<MountFS>().unwrap();
+
+// 添加至这里
+
+let binding = ROOT_INODE().find("ram").expect("RamFs not mounted!").fs();
+let ram: &MountFS = binding.as_any_ref().downcast_ref::<MountFS>().unwrap();
+```
 
 #### 迁移到新的文件系统下
 
-![图片14](../../.vuepress/public/DragonOS/do_migrate.png)
+```rust
+// 把上述文件系统,迁移到新的文件系统下
+do_migrate(new_root_inode.clone(), "proc", proc)?;
+do_migrate(new_root_inode.clone(), "dev", dev)?;
+do_migrate(new_root_inode.clone(), "sys", sys)?;
+
+// 添加至这里
+
+do_migrate(new_root_inode.clone(), "ram", ram)?;
+```
 
 ## 开始测试
 
